@@ -7,6 +7,7 @@
     "firebase-admin": "^14.1.0",
     "helmet": "^8.2.0",
     "joi": "^18.2.3",
+    "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"
   },
@@ -16,6 +17,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^26.0.1",
     "@types/supertest": "^7.2.0",
+    "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/yamljs": "^0.2.34",
     "@typescript-eslint/eslint-plugin": "^8.62.0",
@@ -33,12 +35,12 @@
   "description": "Readme",
   "main": "index.js",
   "scripts": {
-  "dev": "nodemon",
-  "build": "tsc",
-  "start": "node dist/server.js",
-  "test": "jest --coverage",
-  "lint": "eslint src/**/*.ts"
-},
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "jest --coverage",
+    "lint": "eslint src/**/*.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nvjotsinghh/task-management-api.git"
