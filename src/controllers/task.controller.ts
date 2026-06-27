@@ -2,12 +2,10 @@ import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import * as taskService from '../services/task.service';
 
-/**
- * GET /projects/:id/tasks - Get all tasks in a project
- */
 export const getTasksByProject = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const tasks = await taskService.getTasksByProject(req.params.id);
+    const id = req.params['id'] as string;
+    const tasks = await taskService.getTasksByProject(id);
     res.status(200).json(tasks);
   } catch (err: unknown) {
     const e = err as { status?: number; message?: string };
@@ -15,12 +13,10 @@ export const getTasksByProject = async (req: AuthRequest, res: Response): Promis
   }
 };
 
-/**
- * GET /tasks/:id - Get a single task
- */
 export const getTaskById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const task = await taskService.getTaskById(req.params.id);
+    const id = req.params['id'] as string;
+    const task = await taskService.getTaskById(id);
     res.status(200).json(task);
   } catch (err: unknown) {
     const e = err as { status?: number; message?: string };
@@ -28,12 +24,10 @@ export const getTaskById = async (req: AuthRequest, res: Response): Promise<void
   }
 };
 
-/**
- * POST /projects/:id/tasks - Create a task
- */
 export const createTask = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const task = await taskService.createTask(req.params.id, req.body);
+    const id = req.params['id'] as string;
+    const task = await taskService.createTask(id, req.body);
     res.status(201).json(task);
   } catch (err: unknown) {
     const e = err as { status?: number; message?: string };
@@ -41,12 +35,10 @@ export const createTask = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
-/**
- * PUT /tasks/:id - Update a task
- */
 export const updateTask = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const task = await taskService.updateTask(req.params.id, req.body);
+    const id = req.params['id'] as string;
+    const task = await taskService.updateTask(id, req.body);
     res.status(200).json(task);
   } catch (err: unknown) {
     const e = err as { status?: number; message?: string };
@@ -54,12 +46,10 @@ export const updateTask = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
-/**
- * DELETE /tasks/:id - Delete a task
- */
 export const deleteTask = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    await taskService.deleteTask(req.params.id);
+    const id = req.params['id'] as string;
+    await taskService.deleteTask(id);
     res.status(204).send();
   } catch (err: unknown) {
     const e = err as { status?: number; message?: string };
