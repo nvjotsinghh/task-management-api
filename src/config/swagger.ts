@@ -84,6 +84,15 @@ const options = {
             body: { type: 'string', minLength: 1, maxLength: 1000 },
           },
         },
+        AuthResponse: {
+          type: 'object',
+          properties: {
+            uid: { type: 'string' },
+            email: { type: 'string' },
+            token: { type: 'string' },
+            role: { type: 'string' },
+          },
+        },
         Error: {
           type: 'object',
           properties: {
@@ -94,6 +103,71 @@ const options = {
     },
     security: [{ bearerAuth: [] }],
     paths: {
+
+      // ── AUTH ──
+      '/auth/register': {
+        post: {
+          summary: 'Register a new user',
+          tags: ['Auth'],
+          security: [],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['email', 'password'],
+                  properties: {
+                    email: { type: 'string', format: 'email', example: 'user@example.com' },
+                    password: { type: 'string', minLength: 6, example: '123456' },
+                    role: { type: 'string', enum: ['admin', 'member'], example: 'member' },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            201: {
+              description: 'User registered successfully',
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/AuthResponse' } } },
+            },
+            400: { description: 'Validation error or email already exists' },
+            429: { description: 'Too many requests' },
+          },
+        },
+      },
+      '/auth/login': {
+        post: {
+          summary: 'Login and get a Bearer token',
+          tags: ['Auth'],
+          security: [],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['email', 'password'],
+                  properties: {
+                    email: { type: 'string', format: 'email', example: 'user@example.com' },
+                    password: { type: 'string', example: '123456' },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: 'Login successful',
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/AuthResponse' } } },
+            },
+            401: { description: 'Invalid credentials' },
+            429: { description: 'Too many requests' },
+          },
+        },
+      },
+
+      // ── PROJECTS ──
       '/projects': {
         get: {
           summary: 'Get all projects for logged in user',
@@ -146,6 +220,8 @@ const options = {
           },
         },
       },
+
+      // ── TASKS ──
       '/projects/{id}/tasks': {
         get: {
           summary: 'Get all tasks in a project',
@@ -198,6 +274,8 @@ const options = {
           },
         },
       },
+
+      // ── COMMENTS ──
       '/tasks/{id}/comments': {
         get: {
           summary: 'Get all comments on a task',

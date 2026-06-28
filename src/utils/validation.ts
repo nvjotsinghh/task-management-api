@@ -29,3 +29,14 @@ export const updateTaskSchema = Joi.object({
 export const createCommentSchema = Joi.object({
   body: Joi.string().min(1).max(1000).required(),
 });
+
+export const registerSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).max(100).required(),
+  role: Joi.string().valid('admin', 'member'),
+});
+
+export const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+});
