@@ -12,6 +12,7 @@ const auth = {
   verifyIdToken: jest.fn(),
   createUser: jest.fn(),
   setCustomUserClaims: jest.fn(),
+  getUser: jest.fn(),
 };
 
 export { db, auth };
