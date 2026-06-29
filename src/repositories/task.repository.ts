@@ -4,13 +4,35 @@ import { FieldValue } from 'firebase-admin/firestore';
 
 const COLLECTION = 'tasks';
 
+export interface TaskFilters {
+  status?: string;
+  assigneeId?: string;
+  sortBy?: 'dueDate' | 'createdAt';
+  order?: 'asc' | 'desc';
+}
+
 /**
- * Get all tasks for a project
+ * Get all tasks for a project with optional filtering and sorting
  * @param projectId - The project ID
+ * @param filters - Optional filters and sort options
  * @returns Array of tasks
  */
-export const getTasksByProject = async (projectId: string): Promise<Task[]> => {
-  const snapshot = await db.collection(COLLECTION).where('projectId', '==', projectId).get();
+export const getTasksByProject = async (projectId: string, filters: TaskFilters = {}): Promise<Task[]> => {
+  let query = db.collection(COLLECTION).where('projectId', '==', projectId);
+
+  if (filters.status) {
+    query = query.where('status', '==', filters.status);
+  }
+
+  if (filters.assigneeId) {
+    query = query.where('assigneeId', '==', filters.assigneeId);
+  }
+
+  if (filters.sortBy) {
+    query = query.orderBy(filters.sortBy, filters.order || 'asc');
+  }
+
+  const snapshot = await query.get();
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Task));
 };
 

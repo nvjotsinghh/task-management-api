@@ -10,7 +10,7 @@ export interface AuthRequest extends Request {
 }
 
 /**
- * Middleware to verify Firebase Auth token
+ * Middleware to verify Firebase Auth Bearer token
  * @param req - Express request with user field
  * @param res - Express response
  * @param next - Next middleware
@@ -30,7 +30,7 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
     req.user = {
       uid: decoded.uid,
       email: decoded.email || '',
-      role: decoded.role as string || 'member',
+      role: (decoded.role as string) || 'member',
     };
     next();
   } catch {
@@ -40,11 +40,32 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
 
 /**
  * Middleware to restrict access to admin role only
+ * @param req - Express request with user field
+ * @param res - Express response
+ * @param next - Next middleware
  */
 export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction): void => {
   if (req.user?.role !== 'admin') {
-    res.status(403).json({ error: 'Forbidden: Admins only' });
+    res.status(403).json({ error: 'Forbidden: Admin access required' });
     return;
   }
   next();
+};
+
+/**
+ * Middleware factory to require a specific role
+ * @param role - Required role ('admin' or 'member')
+ */
+export const requireRole = (role: 'admin' | 'member') => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    if (req.user.role !== role && req.user.role !== 'admin') {
+      res.status(403).json({ error: `Forbidden: ${role} access required` });
+      return;
+    }
+    next();
+  };
 };

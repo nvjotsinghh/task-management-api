@@ -1,16 +1,18 @@
 import * as taskRepo from '../repositories/task.repository';
 import * as projectRepo from '../repositories/project.repository';
 import { Task, CreateTaskDto, UpdateTaskDto } from '../models/task.model';
+import { TaskFilters } from '../repositories/task.repository';
 
 /**
- * Get all tasks for a project
+ * Get all tasks for a project with optional filters
  * @param projectId - Project ID
+ * @param filters - Optional status, assigneeId, sortBy, order
  * @returns Array of tasks
  */
-export const getTasksByProject = async (projectId: string): Promise<Task[]> => {
+export const getTasksByProject = async (projectId: string, filters: TaskFilters = {}): Promise<Task[]> => {
   const project = await projectRepo.getProjectById(projectId);
   if (!project) throw { status: 404, message: 'Project not found' };
-  return taskRepo.getTasksByProject(projectId);
+  return taskRepo.getTasksByProject(projectId, filters);
 };
 
 /**
