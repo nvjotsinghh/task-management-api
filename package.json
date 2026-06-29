@@ -37,12 +37,12 @@
   "description": "Readme",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "test": "jest --coverage",
-    "lint": "eslint src/**/*.ts"
-  },
+  "dev": "nodemon",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "test": "jest --coverage",
+  "lint": "eslint src/**/*.ts"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nvjotsinghh/task-management-api.git"
