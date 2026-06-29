@@ -8,20 +8,23 @@ dotenv.config();
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || '';
 
 /**
- * Register a new user with Firebase Auth
+ * Registers a new user in Firebase Authentication and assigns a role via custom claims.
+ * Uses Firebase Admin SDK to create the user and Firebase REST API to get the ID token.
  * @param data - Registration data including email, password, and optional role
- * @returns Auth response with uid, email, token, and role
+ * @returns {Promise<AuthResponse>} Auth response containing uid, email, token, and role
+ * @throws {Error} If email already exists or Firebase auth fails
  */
 export const register = async (data: RegisterDto): Promise<AuthResponse> => {
   const { email, password, role = 'member' } = data;
 
-  // Create user in Firebase Auth
+  // Create the user account in Firebase Authentication
   const userRecord = await auth.createUser({ email, password });
 
-  // Set custom claims for role
+  // Assign role as a custom claim so it's included in the decoded token
   await auth.setCustomUserClaims(userRecord.uid, { role });
 
-  // Sign in to get token via Firebase REST API
+  // Use Firebase REST API to sign in and retrieve the ID token
+  // Admin SDK cannot generate ID tokens directly — only the client REST API can
   const response = await axios.post(
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
     { email, password, returnSecureToken: true }
@@ -36,14 +39,15 @@ export const register = async (data: RegisterDto): Promise<AuthResponse> => {
 };
 
 /**
- * Login an existing user via Firebase REST API
- * @param data - Login credentials
- * @returns Auth response with uid, email, token, and role
+ * Authenticates an existing user via Firebase REST API and retrieves their role from custom claims.
+ * @param data - Login credentials containing email and password
+ * @returns {Promise<AuthResponse>} Auth response containing uid, email, token, and role
+ * @throws {Error} If credentials are invalid or user does not exist
  */
 export const login = async (data: { email: string; password: string }): Promise<AuthResponse> => {
   const { email, password } = data;
 
-  // Sign in via Firebase REST API to get ID token
+  // Authenticate via Firebase REST API to get a signed ID token
   const response = await axios.post(
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
     { email, password, returnSecureToken: true }
@@ -51,8 +55,10 @@ export const login = async (data: { email: string; password: string }): Promise<
 
   const { localId: uid, idToken: token } = response.data;
 
-  // Get user record to retrieve custom claims (role)
+  // Fetch the user record to read custom claims (role) set during registration
   const userRecord = await auth.getUser(uid);
+
+  // Default to 'member' if no custom claims have been set
   const role = (userRecord.customClaims?.role as string) || 'member';
 
   return { uid, email, token, role };
