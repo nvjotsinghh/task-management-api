@@ -18,6 +18,7 @@ const mockTask = {
 const mockReq = (overrides = {}): AuthRequest => ({
   user: { uid: 'user1', email: 'test@test.com', role: 'member' },
   params: { id: 'task1' },
+  query: {},
   body: {},
   ...overrides,
 } as unknown as AuthRequest);
@@ -36,7 +37,7 @@ describe('Task Controller', () => {
   describe('getTasksByProject', () => {
     it('should return 200 with tasks', async () => {
       (taskService.getTasksByProject as jest.Mock).mockResolvedValue([mockTask]);
-      const req = mockReq();
+      const req = mockReq({ query: {} });
       const res = mockRes();
       await taskController.getTasksByProject(req, res);
       expect(res.status).toHaveBeenCalledWith(200);
@@ -45,10 +46,18 @@ describe('Task Controller', () => {
 
     it('should return 404 if project not found', async () => {
       (taskService.getTasksByProject as jest.Mock).mockRejectedValue({ status: 404, message: 'Project not found' });
-      const req = mockReq();
+      const req = mockReq({ query: {} });
       const res = mockRes();
       await taskController.getTasksByProject(req, res);
       expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it('should pass filters from query params', async () => {
+      (taskService.getTasksByProject as jest.Mock).mockResolvedValue([mockTask]);
+      const req = mockReq({ query: { status: 'todo', sortBy: 'dueDate', order: 'asc' } });
+      const res = mockRes();
+      await taskController.getTasksByProject(req, res);
+      expect(res.status).toHaveBeenCalledWith(200);
     });
   });
 
